@@ -1,0 +1,77 @@
+{
+	"name": "Parquet1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "adls_Test_GIT",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "DIVIPOLA.parquet",
+				"fileSystem": "raw"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "Codigo_Departamento",
+				"type": "UTF8"
+			},
+			{
+				"name": "Codigo_Municipio",
+				"type": "UTF8"
+			},
+			{
+				"name": "Codigo_Centro_Poblado",
+				"type": "UTF8"
+			},
+			{
+				"name": "Nombre_Departamento",
+				"type": "UTF8"
+			},
+			{
+				"name": "Nombre_Municipio",
+				"type": "UTF8"
+			},
+			{
+				"name": "Nombre_Centro_Poblado",
+				"type": "UTF8"
+			},
+			{
+				"name": "Tipo_Centro_Poblado",
+				"type": "UTF8"
+			},
+			{
+				"name": "Longitud",
+				"type": "UTF8"
+			},
+			{
+				"name": "Latitud",
+				"type": "UTF8"
+			},
+			{
+				"name": "Nombre_Distrito",
+				"type": "UTF8"
+			},
+			{
+				"name": "Municipio_areas_No_Municipalizadas_ANM",
+				"type": "UTF8"
+			},
+			{
+				"name": "Nombre_area_Metropolitana",
+				"type": "UTF8"
+			},
+			{
+				"name": "Es_capital",
+				"type": "UTF8"
+			},
+			{
+				"name": "Pais",
+				"type": "UTF8"
+			}
+		]
+	}
+}
