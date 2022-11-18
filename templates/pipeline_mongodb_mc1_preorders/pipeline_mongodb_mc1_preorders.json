@@ -1,0 +1,144 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nombre de instancia de Data Factory"
+		},
+		"MongoDbAtlasPreOrders": {
+			"type": "string"
+		},
+		"ls_dls0dat0data0lake0prd": {
+			"type": "string"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline_mongodb_mc1_preorders')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "MongoDbAtlasSource",
+								"batchSize": 100,
+								"filter": {
+									"value": "{purchaseDate: {\"$eq\": \"@{variables('today')}\" } }",
+									"type": "Expression"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "mongodb_mc1_preorders",
+								"type": "DatasetReference"
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "parquet_file_mc1_preorders",
+								"type": "DatasetReference",
+								"parameters": {
+									"today": "@variables('today')"
+								}
+							}
+						]
+					}
+				],
+				"variables": {
+					"today": {
+						"type": "String",
+						"defaultValue": "@convertFromUtc(utcnow(), 'Central America Standard Time', 'yyyy-MM-dd')"
+					}
+				},
+				"folder": {
+					"name": "mongodb"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-03T23:55:14Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/mongodb_mc1_preorders')]",
+				"[concat(variables('factoryId'), '/datasets/parquet_file_mc1_preorders')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/mongodb_mc1_preorders')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('MongoDbAtlasPreOrders')]",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "MongoDbAtlasCollection",
+				"schema": [],
+				"typeProperties": {
+					"collection": "PreOrder"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/parquet_file_mc1_preorders')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('ls_dls0dat0data0lake0prd')]",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"today": {
+						"type": "string",
+						"defaultValue": "@convertFromUtc(utcnow(), 'Central America Standard Time', 'yyyyMMdd')"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@concat('purchaseDate=', dataset().today, '/',dataset().today,'.parquet')",
+							"type": "Expression"
+						},
+						"folderPath": "bronze/mongodb-preorders/mc1_preorder",
+						"fileSystem": "dls-data"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		}
+	]
+}
